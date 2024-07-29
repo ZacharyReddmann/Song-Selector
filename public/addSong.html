@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="app.css"/>
+  <title>Add Song</title>
+</head>
+<body>
+  <h1><a href="index.html">To Home</a></h1>
+  <section class="container">
+    <div id="searchBar">
+        <input type="text" name="" id= "search-item" placeholder="Search songs here">
+        <button type="submit" id="searchButton">Search</button>
+    </div>
+
+    <div class="song-list" id="song-list">
+      <dl></dl>
+    </div>
+
+    <div class="form-container">
+      <form id="addDocumentForm" action="/add-song" method="POST">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br>
+        
+        <label for="type">Type:</label><br>
+        <input type="text" id="type" name="type" required><br>
+        
+        <label for="startKey">Start Key:</label><br>
+        <input type="text" id="startKey" name="startKey" required><br>
+        
+        <label for="endKey">End Key:</label><br>
+        <input type="text" id="endKey" name="endKey" required><br>
+        
+        <label for="date">Date: Ex. 01/01/2024</label><br>
+        <input type="text" id="date" name="date" required><br>
+
+        <label for="dbID"></label><br>
+        <input type="text" id="dbID" name="dbID"><br><br>
+        
+        <button id= "addButton" type="submit">Add New Song</button>
+      </form>
+    </div>
+  </section>
+
+  <button id="updateButton" disabled>Update Song</button>
+  <button id="deleteButton" disabled>Delete Song</button>
+
+<script>
+  async function fetchSongs() {
+      try {
+          const response = await fetch('/get-songs-with-id');
+          let songs = await response.json();
+
+          // Sort songs alphabetically by name
+          songs.sort((a, b) => a.name.localeCompare(b.name));
+
+          // Get the <ul> element where we want to display the items
+          const songList = document.getElementById('song-list');
+
+          // Clear existing songs
+          songList.innerHTML = '';
+
+          // Add each song to the list
+          songs.forEach(aSong => {
+              const li = document.createElement('li');
+              const button = document.createElement('button');
+              button.textContent = aSong.name;
+
+              li.appendChild(button);
+              
+              const contentDiv = document.createElement('div');
+              contentDiv.className = 'content';
+              contentDiv.style.display = 'none';
+
+              // Create elements for each piece of information with specific classes
+              const idElement = document.createElement('span');
+              idElement.className = 'id';
+              idElement.textContent = aSong._id;
+              
+              const startKeyElement = document.createElement('span');
+              startKeyElement.className = 'start-key';
+              startKeyElement.textContent = aSong.startKey;
+
+              const typeElement = document.createElement('span');
+              typeElement.className = 'type';
+              typeElement.textContent = aSong.type;
+
+              const endKeyElement = document.createElement('span');
+              endKeyElement.className = 'end-key';
+              endKeyElement.textContent = aSong.endKey;
+
+              const dateElement = document.createElement('span');
+              dateElement.className = 'last-used';
+              dateElement.textContent = aSong.date;
+
+              // Append each element to the contentDiv
+              contentDiv.appendChild(idElement);
+              contentDiv.appendChild(startKeyElement);
+              contentDiv.appendChild(typeElement);
+              contentDiv.appendChild(endKeyElement);
+              contentDiv.appendChild(dateElement);
+
+              li.appendChild(contentDiv);
+              songList.appendChild(li);
+          });
+      } catch (error) {
+          console.error('Error:', error);
+      }
+  }
+
+  // Add event listener to dynamically generated buttons
+  document.addEventListener("click", function(event) {
+    if (event.target && event.target.tagName === "BUTTON") {
+        const clickedButton = event.target;
+        const contentDiv = clickedButton.nextElementSibling;
+
+        // Check if the clicked button is already active
+        const isActive = clickedButton.classList.contains("active");
+
+        // Get the currently active button
+        const activeButton = document.querySelector(".active");
+
+        // If the clicked button is not active, toggle it and disable the active button
+        if (!isActive && (event.target.id !== "addButton" && event.target.id !== "updateButton" && event.target.id !== "deleteButton")) {
+            // Toggle the clicked button
+            clickedButton.classList.add("active");
+
+            // Disable the active button
+            if (activeButton) {
+                activeButton.classList.remove("active");
+            }
+        } else {
+            // If the clicked button is already active, remove the active class
+            clickedButton.classList.remove("active");
+        }
+
+        // Get song name from the clicked button
+        const clickedSongName = clickedButton.textContent;
+
+        // Extract type, start key, end key, and date from the content div
+        const startKey = contentDiv.querySelector(".start-key").textContent.trim();
+        const endKey = contentDiv.querySelector(".end-key").textContent.trim();
+        const date = contentDiv.querySelector(".last-used").textContent.trim();
+        const type = contentDiv.querySelector(".type").textContent.trim();
+        const dbID = contentDiv.querySelector(".id").textContent.trim();
+
+        
+
+        // Enable or disable update and delete buttons based on the active state
+        const updateButton = document.getElementById("updateButton");
+        const deleteButton = document.getElementById("deleteButton");
+
+        if (isActive) {
+            updateButton.disabled = true;
+            deleteButton.disabled = true;
+            document.getElementById("name").value = '';
+            document.getElementById("type").value = '';
+            document.getElementById("startKey").value = '';
+            document.getElementById("endKey").value = '';
+            document.getElementById("date").value = '';
+            document.getElementById("dbID").value = '';
+        } else {
+            updateButton.disabled = false;
+            deleteButton.disabled = false;
+           
+            // Set values in the form
+            document.getElementById("name").value = clickedSongName;
+            document.getElementById("type").value = type;
+            document.getElementById("startKey").value = startKey;
+            document.getElementById("endKey").value = endKey;
+            document.getElementById("date").value = date;
+            document.getElementById("dbID").value = dbID;
+        }
+    }
+});
+
+    // Function to filter songs based on search input
+    function filterSongs() 
+    {
+        const searchValue = document.getElementById('search-item').value.toLowerCase();
+        const songButtons = document.querySelectorAll('#song-list button');
+        songButtons.forEach(button => {
+            const buttonText = button.textContent.toLowerCase();
+            const li = button.parentElement;
+            if (buttonText.includes(searchValue)) {
+                li.style.display = 'block';
+            } else {
+                li.style.display = 'none';
+            }
+        });
+    }   
+
+    document.getElementById('searchButton').addEventListener('click', filterSongs);
+    document.getElementById('search-item').addEventListener('input', filterSongs);
+
+  // Call the fetch songs function when the page loads
+  window.onload = fetchSongs;
+</script>
+
+<script>
+document.getElementById("addButton").addEventListener("click", function(event) {
+  // Prevent the default form submission behavior
+  event.preventDefault();
+
+  // Get the form data
+  const formData = {
+      name: document.getElementById("name").value,
+      type: document.getElementById("type").value,
+      startKey: document.getElementById("startKey").value,
+      endKey: document.getElementById("endKey").value,
+      date: document.getElementById("date").value,
+      dbID: document.getElementById("dbID").value
+  };
+
+  // Define the URL for the add endpoint
+  const url = "/add-song";
+
+  // Make a POST request to add the song
+  fetch(url, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+  })
+  .then(response => {
+      if (response.ok) {
+          console.log("Song added successfully");
+          alert("Song added successfully");
+          fetchSongs(); // Fetch songs again to update the song list
+      } else {
+          console.error("Failed to add song");
+      }
+  })
+  .catch(error => {
+      console.error("Error:", error);
+  });
+});
+</script>
+
+<script>
+// Add an event listener to the update button
+document.getElementById("updateButton").addEventListener("click", function(event) {
+    
+    // Prevent the default form submission behavior
+    event.preventDefault();
+
+  // Get the updated song data
+    const updatedSongData = {
+        name: document.getElementById("name").value,
+        type: document.getElementById("type").value,
+        startKey: document.getElementById("startKey").value,
+        endKey: document.getElementById("endKey").value,
+        date: document.getElementById("date").value,
+    };
+
+    // Get the song ID
+    const songId = document.getElementById("dbID").value;
+
+    // Define the URL for the update endpoint
+    const url = `/update-song/${songId}`;
+
+    // Make a PUT request to update the song
+    fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedSongData),
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Song updated successfully');
+            
+            // Optionally, you can redirect or perform other actions here
+            fetchSongs(); // Fetch songs again to update the song list
+
+        } else {
+            console.error('Failed to update song');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+</script>
+
+<script>
+  document.getElementById("deleteButton").addEventListener("click", function(event) 
+  {  
+    // Prevent the default form submission behavior
+    event.preventDefault();
+    
+    const confirmation = confirm("Are you sure you want to delete the selected song?");
+    if(confirmation)
+    {
+    // Get the song ID
+    const songId = document.getElementById("dbID").value;
+
+    // Define the URL for the delete endpoint
+    const url = `/delete-song/${songId}`;
+
+    // Make a DELETE request to delete the song
+    fetch(url, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Song deleted successfully');
+            alert('Song deleted successfully');
+            fetchSongs(); // Fetch songs again to update the song list
+        } else {
+            console.error('Failed to delete song');
+        }
+    })
+    .catch(error => 
+    {
+        console.error('Error:', error);
+    });
+  }
+});    
+</script>
+
+<script>
+  document.getElementById("updateButton").addEventListener("click", function() {
+  // Change the form action to the update endpoint
+  document.getElementById("addDocumentForm").action = "/update-song";
+  document.getElementById("addDocumentForm").method = "PUT"; // Use PUT for updating
+
+  // Submit the form
+  document.getElementById("addDocumentForm").submit();
+  });
+
+  document.getElementById("deleteButton").addEventListener("click", function() {
+  // Change the form action to the delete endpoint
+  document.getElementById("addDocumentForm").action = "/delete-song";
+  document.getElementById("addDocumentForm").method = "DELETE"; // Use DELETE for deleting
+  });
+
+  document.getElementById("addButton").addEventListener("click", function() {
+  // Change the form action to the add endpoint
+  document.getElementById("addDocumentForm").action = "/add-song";
+  document.getElementById("addDocumentForm").method = "POST"; // Use POST for adding
+
+  // Submit the form
+  //document.getElementById("addDocumentForm").submit();
+  });
+</script>
+</body>
+</html>

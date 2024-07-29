@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="app.css"/>
+    </head>
+    <body>
+        <h1>
+            <a href="playlist.html">To Playlists</a> &nbsp; &nbsp; &nbsp; 
+            <a href="addSong.html">To Songs</a> 
+        </h1>
+        <div class="w3-bar">   
+            <button type="button" class="filterButtons" id="worshipButton">Worship</button>
+            <button type="button" class="filterButtons" id="upbeatButton">Upbeat</button>
+            <button type="button" class="filterButtons" id="invitationButton">Invitation</button>
+            <button type="button" class="filterButtons" id="dateButton">Date</button>
+        </div> 
+        
+        <section class = container>
+            <div id="searchBar">
+                <input type="text" name="" id= "search-item" placeholder="Search songs here">
+                <button type="submit" id="searchButton">Search</button>
+            </div>
+        
+            <div class="song-list" id="song-list">
+                <dl id= "song-list"></dl>
+            </div>
+        </section>
+        <div>
+            <button type="button" id="addToPlaylist1">Add to Slot 1</button>
+            <button type="button" id="addToPlaylist2">Add to Slot 2</button>
+            <button type="button" id="addToPlaylist3">Add to Slot 3</button>
+            <button type="button" id="addToPlaylist4">Add to Slot 4</button>
+            <button type="button" id="addToPlaylist5">Add to Slot 5</button>
+            <button type="button" id="addToPlaylist6">Add to Slot 6</button>
+        </div>
+        
+        <div id="playlistBuilder">Playlist Builder:</div>
+        <table id="playlistTable">
+            <tr>
+                <td>Date: 
+                    <form>
+                        <input type="date" id="playlistName">
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>Verse: <input type="text" id="verseInput"></td>
+            </tr>
+            <tr>
+                <td id="song1Cell">Song 1: Song name inserted here</td>
+            </tr>
+            <tr>
+                <td id="song2Cell">Song 2: Song name inserted here</td>
+            </tr>
+            <tr>
+                <td id="song3Cell">Song 3: Song name inserted here</td>
+            </tr>
+            <tr>
+                <td id="song4Cell">Song 4: Song name inserted here</td>
+            </tr>
+            <tr>
+                <td id="song5Cell">Song 5: Song name inserted here</td>
+            </tr>
+            <tr>
+                <td id="invitationalCell">Invitational: Song name inserted here</td>
+            </tr>
+
+        </table>
+        
+        <script>
+            async function fetchSongs() 
+            {
+                try {
+                    const response = await fetch('/get-songs-with-id');
+                    let songs = await response.json();
+
+                    // Sort songs alphabetically by name
+                    songs.sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Get the <ul> element where we want to display the items
+                    const songList = document.getElementById('song-list');
+
+                    // Clear existing songs
+                    songList.innerHTML = '';
+
+                    // Add each song to the list
+                    songs.forEach(aSong => {
+                    const li = document.createElement('li');
+                    const button = document.createElement('button');
+                    button.textContent = aSong.name;
+                    button.className = 'collapsible'; // Setting class name to 'collapsible'
+                    button.addEventListener('click', function() {
+                        this.classList.toggle("active");
+                        var content = this.nextElementSibling;
+
+                        //closing this on click
+                        if (content.style.display === "block") {
+                            content.style.display = "none";
+
+                            if (prevThis == this) {
+                                prevThis = null;
+                            }
+                        } 
+                        //open this on click
+                        else if (content.style.display === "none") {
+                            content.style.display = "block";
+
+                            if (prevThis != this && prevThis != null) {
+                                prevThis.classList.toggle("active");
+                                prevThis.nextElementSibling.style.display = "none";
+                            }
+
+                            prevThis = this;
+                        }
+                    });
+                    li.appendChild(button);
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'content';
+                    contentDiv.style.display = 'none';
+                    contentDiv.innerHTML = `
+                    <p> Start Key: ${aSong.startKey} &nbsp; ${aSong.type} </p> 
+                    <p> End Key: ${aSong.endKey} &nbsp; Last Used: ${aSong.date} </p>
+                    <span id= "hiddenSpan" > ${aSong._id} </span>` //style="display: none;
+                    
+
+                    li.appendChild(contentDiv);
+                    songList.appendChild(li);
+                });
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            //****************************
+            let songClickedText = null;
+            
+            // Function to handle adding song to the playlist
+            function addToPlaylist1(event) 
+            {   if(songClickedText)
+                {
+                const song1Cell = document.getElementById("song1Cell");
+    
+               // const buttonText = event.target.textContent; // Get the text content of the clicked button
+                song1Cell.textContent = songClickedText;
+                }
+            }
+
+            function addToPlaylist2(event)
+            {
+                if(songClickedText)
+                {
+                    const song2Cell = document.getElementById("song2Cell");
+                    song2Cell.textContent = songClickedText;
+                }
+            }
+
+            function addToPlaylist3(event)
+            {
+                if(songClickedText)
+                {
+                    const song3Cell = document.getElementById("song3Cell");
+                    song3Cell.textContent = songClickedText;
+                }
+            }
+
+            function addToPlaylist4(event)
+            {
+                if(songClickedText)
+                {
+                    const song4Cell = document.getElementById("song4Cell");
+                    song4Cell.textContent = songClickedText;
+                }
+            }
+
+            function addToPlaylist5(event)
+            {
+                if(songClickedText)
+                {
+                    const song5Cell = document.getElementById("song5Cell");
+                    song5Cell.textContent = songClickedText;
+                }
+            }
+
+            function addToPlaylistInvitational(event)
+            {
+                if(songClickedText)
+                {
+                    const invitationalCell = document.getElementById("invitationalCell");
+                    invitationalCell.textContent = songClickedText;
+                }
+            }
+
+            // Add event listener to the document to handle dynamically generated buttons
+            document.addEventListener("click", function(event) 
+            {
+                if (event.target && event.target.classList.contains("collapsible")) {
+                    songClickedText = event.target.textContent;
+                }
+                
+                if (event.target && event.target.id === "addToPlaylist1") {
+                    addToPlaylist1();//event);
+                }
+
+                if (event.target && event.target.id === "addToPlaylist2") {
+                    addToPlaylist2();//event);
+                }
+
+                if (event.target && event.target.id === "addToPlaylist3") {
+                    addToPlaylist3();//event);
+                }
+
+                if (event.target && event.target.id === "addToPlaylist4") {
+                    addToPlaylist4();//event);
+                }
+
+                if (event.target && event.target.id === "addToPlaylist5") {
+                    addToPlaylist5();//event);
+                }
+
+                if (event.target && event.target.id === "addToPlaylist6") { //this is invitational
+                    addToPlaylistInvitational();//event);
+                }
+            });
+
+            //****************************
+
+
+            var coll = document.getElementsByClassName("collapsible");
+            var prevThis = null;
+            for (var i = 0; i < coll.length; i++) 
+            {
+                coll[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+
+                    //closing this on click
+                    if (content.style.display === "block") {
+                        content.style.display = "none";
+
+                        if (prevThis == this) {
+                            prevThis = null;
+                        }
+                    } 
+                    //open this on click
+                    else if (content.style.display === "none") {
+                        content.style.display = "block";
+
+                        if (prevThis != this && prevThis != null) {
+                            prevThis.classList.toggle("active");
+                            prevThis.nextElementSibling.style.display = "none";
+                        }
+
+                        prevThis = this;
+                    }
+                });
+            }
+        
+        /*******************************Filtering Code***********************************/    
+        function filterByType(type) 
+        {
+            const songList = document.getElementById('song-list');
+            const songs = songList.querySelectorAll('li');
+            songs.forEach(song => 
+            {
+                const contentDiv = song.querySelector('.content');
+                const typeElement = contentDiv.querySelector('p');
+                const contentText = typeElement.textContent.toLowerCase();
+                if(type === 'Worship')
+                {
+                    if (contentText.includes('worship')) 
+                    {
+                        song.style.display = 'block';
+                    } else {
+                        song.style.display = 'none';
+                    }
+                }
+                if(type === 'Upbeat')
+                {
+                    if (contentText.includes('upbeat')) 
+                    {
+                        song.style.display = 'block';
+                    } else {
+                        song.style.display = 'none';
+                    }
+                }
+        
+                if(type === 'Invitation')
+                {
+                    if (contentText.includes('invitation')) 
+                    {
+                        song.style.display = 'block';
+                } else {
+                        song.style.display = 'none';
+                    }
+                }
+        
+            });
+        }   
+
+        document.getElementById('worshipButton').addEventListener('click', () => filterByType('Worship'));
+        document.getElementById('upbeatButton').addEventListener('click', () => filterByType('Upbeat'));
+        document.getElementById('invitationButton').addEventListener('click', () => filterByType('Invitation'));
+
+        /************************Date Filtering**************************/
+        function sortByDate() 
+        {
+            const songList = document.getElementById('song-list');
+            const songs = Array.from(songList.querySelectorAll('li'));
+            songs.sort((a, b) => 
+            {
+                const dateA = parseDate(getDateFromElement(a));
+                const dateB = parseDate(getDateFromElement(b));
+                return dateA - dateB;
+            });
+            songList.innerHTML = '';
+            songs.forEach(song => songList.appendChild(song));
+        }
+
+        function getDateFromElement(element) 
+        {
+            const paragraph = element.querySelector('.content p:nth-of-type(2)'); // Select the second <p> element
+            const text = paragraph.textContent;
+            const lastUsedIndex = text.indexOf('Last Used: ');
+            const dateString = text.substring(lastUsedIndex + 'Last Used: '.length).trim();
+            //console.log("Extracted date string:", dateString); // Log the extracted date string
+            return dateString.split(' ')[0]; // Extract only the date part
+        }
+
+        function parseDate(dateString) 
+        {
+            const [month, day, year] = dateString.split('/').map(part => parseInt(part, 10));
+            return new Date(year, month - 1, day); // Subtract 1 from month to handle 1-based indexing
+        }
+
+        document.getElementById('dateButton').addEventListener('click', sortByDate);
+
+        
+        // Function to filter songs based on search input
+        function filterSongs() 
+        {
+            const searchValue = document.getElementById('search-item').value.toLowerCase();
+            const songButtons = document.querySelectorAll('#song-list button');
+            songButtons.forEach(button => {
+                const buttonText = button.textContent.toLowerCase();
+                const li = button.parentElement;
+                if (buttonText.includes(searchValue)) {
+                    li.style.display = 'block';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }   
+
+        document.getElementById('searchButton').addEventListener('click', filterSongs);
+        document.getElementById('search-item').addEventListener('input', filterSongs);
+        // Call the fetchItems function when the page loads
+        window.onload = fetchSongs;
+        </script>
+
+        <div>
+            <button type="button" id="createPlaylist">Create Playlist</button>
+            <button type="button" id="updateSongDates" disabled>Update Song Dates</button>
+        </div>
+        
+    </body>
+
+<script>
+    /*****************************************UPDATE SONG DATES START**************************************************/
+    document.getElementById("updateSongDates").addEventListener("click", function(event) 
+    {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+
+        // Disable the "Update Song Dates" button
+        this.disabled = true;
+
+        // Get the selected date from the playlist builder
+        const selectedDate = document.getElementById("playlistName").value;
+
+        // Convert the selected date to the desired format (mm/dd/yyyy)
+        const formattedDate = formatDate(selectedDate);
+
+        // Select all elements containing song IDs and dates
+        const songElements = document.querySelectorAll("#hiddenSpan"); //THIS
+
+        // Array to store objects containing song ID and updated date
+        const updatedSongDataArray = [];
+
+        // Select all song-list songs containing the button and hiddenSpan elements
+        const allSongs = document.querySelectorAll('li');
+
+        // Array to store objects containing name and id
+        const allSongsArray = [];
+
+        // Iterate over each list item
+        allSongs.forEach(song => {
+            // Get the button element
+            const button = song.querySelector('.collapsible');
+            
+            // Get the text content of the button (name)
+            const name = button.textContent.trim();
+            
+            // Get the id from the hiddenSpan
+            const hiddenSpan = song.querySelector('#hiddenSpan');
+            const id = hiddenSpan.textContent.trim();
+            
+            // Create an object containing name and id and push it to the array
+            allSongsArray.push({ name, id });
+        });
+
+        // Log the array containing objects with name and id
+        console.log(allSongsArray);
+
+        const songCells = [
+        document.getElementById("song1Cell").textContent.trim(),
+        document.getElementById("song2Cell").textContent.trim(),
+        document.getElementById("song3Cell").textContent.trim(),
+        document.getElementById("song4Cell").textContent.trim(),
+        document.getElementById("song5Cell").textContent.trim(),
+        document.getElementById("invitationalCell").textContent.trim()
+        ];
+
+        console.log("songcells: ", songCells);
+
+        songCells.forEach(songCell => 
+        {
+            // Iterate over each object in allSongsArray
+            allSongsArray.forEach(songObj => 
+            {
+                // Check if the name in songCells matches any name in allSongsArray
+                if (songObj.name === songCell) 
+                {
+                    // If there's a match, add the corresponding id to updatedSongDataArray
+                    updatedSongDataArray.push({ id: songObj.id, date: formattedDate });
+                }
+            });
+        });
+
+        // Log the updated song data array
+        console.log("Updated song data array:", updatedSongDataArray);
+
+
+        // Define the URL for the update endpoint
+        const url = `/update-song-dates`;
+
+        // Clear/reset the content of playlist builder table cells
+        document.getElementById("playlistName").value = '';
+        document.getElementById("verseInput").value = '';
+        document.getElementById("song1Cell").textContent = 'Song 1: Song name inserted here'; // Clear Song 1 cell
+        document.getElementById("song2Cell").textContent = 'Song 2: Song name inserted here'; // Clear Song 2 cell
+        document.getElementById("song3Cell").textContent = 'Song 3: Song name inserted here'; // Clear Song 3 cell
+        document.getElementById("song4Cell").textContent = 'Song 4: Song name inserted here'; // Clear Song 4 cell
+        document.getElementById("song5Cell").textContent = 'Song 5: Song name inserted here'; // Clear Song 5 cell
+        document.getElementById("invitationalCell").textContent = 'Invitational: Song name inserted here'; // Clear Invitational cell
+
+        // Make a PUT request to update the song dates
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedSongDataArray),
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Song dates updated successfully');
+                alert('Song dates updated successfully');
+                // Optionally, you can perform other actions here
+                fetchSongs(); // Fetch songs again to update the song list
+            } else {
+                console.error('Failed to update song dates');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // Function to format the date to mm/dd/yyyy
+    function formatDate(dateString) {
+        const [year, month, day] = dateString.split("-");
+        return `${month}/${day}/${year}`;
+    }
+/*****************************************UPDATE SONG DATES END**************************************************/
+
+</script>
+    
+    <script>
+        document.getElementById("createPlaylist").addEventListener("click", function(event) {
+        
+        //Prevent the default form submission behavior
+        event.preventDefault();
+        
+        // Get the selected date from the playlist builder
+        const selectedDate = document.getElementById("playlistName").value;
+
+        // Convert the selected date to the desired format (mm/dd/yyyy)
+        const formattedDate = formatDate(selectedDate);
+
+        //Get the form data
+        const formData = {
+            name: formattedDate,
+            Verse: document.getElementById("verseInput").value,
+            song1: document.getElementById("song1Cell").textContent,
+            song2: document.getElementById("song2Cell").textContent,
+            song3: document.getElementById("song3Cell").textContent,
+            song4: document.getElementById("song4Cell").textContent,
+            song5: document.getElementById("song5Cell").textContent,
+            Invitational: document.getElementById("invitationalCell").textContent,
+            //dbID: document.getElementById("dbID").value
+        };
+        
+        //Define the URL for the add endpoint
+        const url = "/add-playlist";
+    
+        //Make a POST request to add the playlist
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Playlist added successfully");
+                alert("Playlist added successfully");
+                fetchSongs(); // Fetch songs again to update the playlist list
+                document.getElementById("updateSongDates").disabled = false; //this will enable the song date update button
+            } else {
+                console.error("Failed to add playlist");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    });
+
+    // Function to format the date to mm/dd/yyyy
+    function formatDate(dateString) {
+        const [year, month, day] = dateString.split("-");
+        return `${month}/${day}/${year}`;
+    }
+    </script>
+
+    <script src="app.js"></script>
+
+</html>

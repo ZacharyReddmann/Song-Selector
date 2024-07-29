@@ -1,0 +1,283 @@
+h1
+{    
+    color: black;
+    font-size: 19pt;
+    text-align: left;
+    padding: 0%;
+}
+
+#searchBar {
+    text-align: center;
+  }
+
+body
+{
+    background-color: lightblue;
+}
+
+/***********Playlist.html***********/
+
+#exportButton
+{
+  margin-top: 10px;
+}
+
+#updatePlaylistButton
+{
+margin-top: 10px;
+}
+
+#deletePlaylistButton
+{
+  margin-top: 10px;
+}
+
+#dbIDLabel,
+#dbID {
+    display: none;
+}
+
+#dbID
+{
+  display: none;
+}
+
+
+
+.playlist-list
+{
+list-style: none;
+overflow-y:scroll;
+width:100%;
+height: 150px;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+
+.playlist-list li button
+{
+list-style: none;
+color: black;
+padding: 4px;
+width: 95%;
+text-align: center;
+font-size: 15px;
+border-radius: 10px;
+margin-top: 10px;
+}
+/***********Playlist.html***********/
+
+
+/****addSong.html******/
+
+.song-list li button 
+{
+  
+  padding: 4px;
+  width: 95%;
+  text-align: left;
+  font-size: 15px;
+  border-radius: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
+
+#addButton
+{
+  margin-bottom: 5px;
+}
+
+#updateButton
+{
+  text-align: center;
+  margin-right: 5px;
+  width: 45%;
+}
+
+#deleteButton
+{
+  text-align: center;
+  width: 45%;
+}
+
+#name
+{
+  width:fit-content;
+  overflow: wrap;
+}
+
+#type
+{
+  width:fit-content;
+  overflow: wrap;
+}
+
+
+#startKey
+{
+  width:fit-content;
+  overflow: wrap;
+}
+
+#endKey
+{
+  width:fit-content;
+  overflow: wrap;
+}
+
+#date
+{
+  width:fit-content;
+  overflow: wrap;
+}
+
+/********End*****/
+
+
+#addToPlaylist1
+{
+  text-align: center;
+  margin-top: 5px;
+  width: 40%
+}
+
+#addToPlaylist2
+{
+  text-align: center;
+  margin-top: 5px;
+  width: 40%
+}
+
+#addToPlaylist3
+{
+  text-align: center;
+  margin-top: 5px;
+  width: 40%
+}
+
+#addToPlaylist4
+{
+  text-align: center;
+  margin-top: 5px;
+  width: 40%
+}
+
+#addToPlaylist5
+{
+  text-align: center;
+  margin-top: 5px;
+  width: 40%
+}
+
+#addToPlaylist6
+{
+  text-align: center;
+  margin-top: 5px;
+  width: 40%
+}
+
+#songsList
+{
+   margin-top: 10px;
+   font-weight: bold;
+}
+
+#playlistBuilder
+{
+   margin-top: 10px;
+   font-weight: bold;
+}
+
+.w3-bar
+{
+  padding-bottom: 6px;
+  text-align: center;
+}
+
+.filterButtons
+{
+  width: 22%
+}
+
+.song-list
+{
+  width:100%;
+  background: lightblue;
+  overflow-y:scroll;
+  height: 145px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/*This is the list of songs*/
+.collapsible 
+{
+  background-color: whitesmoke;
+  color: black;
+  padding: 4px;
+  width: 95%;
+  text-align: left;
+  font-size: 15px;
+  border-radius: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsible h2
+{
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.active {
+  background-color: yellow;
+}
+
+/*This is the content displayed when clicked*/
+.content {
+  padding: 1 0px;
+  width: 95%;
+  display: none;
+  overflow: hidden;
+} 
+
+table {
+  table-layout: fixed;
+  width: 95%
+} 
+
+th, td {
+  border: 1px solid black;
+  background-color: white;
+  padding: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#export
+{
+    margin-top: 2px;
+}
+
+.song-list li
+{
+list-style: none;
+/*background-color: red;*/
+color: black;
+padding: 4px;
+width: 95%;
+text-align: left;
+font-size: 15px;
+border-radius: 10px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: clip;
+}
+
+

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="app.css"/>
+    </head>
+    <body>
+        <h1 id="playlistToHome"><a href="index.html">To Home</a></h1>
+        <section class="container">
+            <div id="searchBar">
+                <input type="text" name="" id= "search-item" placeholder="Search songs here">
+                <button type="submit" id="searchButton">Search</button>
+            </div>
+      
+          <div class="playlist-list" id="playlist-list">
+            <dl></dl>
+          </div>
+      
+          <div class="form-container">
+            <form id="addDocumentForm" action="/update-playlist" method="PUT">
+              <label for="name">Date:</label><br>
+              <input type="text" id="name" name="name" required><br>
+              
+              <label for="Verse">Verse:</label><br>
+              <input type="text" id="Verse" name="Verse" required><br>
+              
+              <label for="song1">Song 1:</label><br>
+              <input type="text" id="song1" name="song1" required><br>
+              
+              <label for="song2">Song 2:</label><br>
+              <input type="text" id="song2" name="song2" required><br>
+              
+              <label for="song3">Song 3:</label><br>
+              <input type="text" id="song3" name="song3" required><br>
+
+              <label for="song4">Song 4:</label><br>
+              <input type="text" id="song4" name="song4" required><br>
+
+              <label for="song5">Song 5:</label><br>
+              <input type="text" id="song5" name="song5" required><br>
+
+              <label for="Invitational">Invitational:</label><br>
+              <input type="text" id="Invitational" name="Invitational" required>
+                
+              <label id="dbIDLabel" for="dbID">Hidden Label:</label>
+              <input type="text" id="dbID" name="dbID">
+
+            </form>
+          </div>
+        </section>
+      
+        <button id="updatePlaylistButton" disabled>Update Playlist</button>
+        <button id="deletePlaylistButton" disabled>Delete Playlist</button>
+        <button id="exportButton" disabled>Export to Word</button>
+
+      
+      <script>
+        async function fetchPlaylists() 
+        {
+            try {
+                const response = await fetch('/get-playlists-with-id');
+                const playlists = await response.json();
+
+                // Get the <ul> element where we want to display the items
+                const playlistList = document.getElementById('playlist-list');
+      
+                // Clear existing playlists
+                playlistList.innerHTML = '';
+      
+                // Add each playlist to the list
+                playlists.forEach(aPlaylist => {
+                    const li = document.createElement('li');
+                    const button = document.createElement('button');
+                    button.textContent = aPlaylist.name;
+      
+                    li.appendChild(button);
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'content';
+                    contentDiv.style.display = 'none';
+      
+                    // Create elements for each piece of information with specific classes
+                    const idElement = document.createElement('span');
+                    idElement.className = 'id';
+                    idElement.textContent = aPlaylist._id;
+                    
+                    const VerseElement = document.createElement('span');
+                    VerseElement.className = 'Verse';
+                    VerseElement.textContent = aPlaylist.Verse;
+      
+                    const song1Element = document.createElement('span');
+                    song1Element.className = 'song1';
+                    song1Element.textContent = aPlaylist.song1;
+      
+                    const song2Element = document.createElement('span');
+                    song2Element.className = 'song2';
+                    song2Element.textContent = aPlaylist.song2;
+      
+                    const song3Element = document.createElement('span');
+                    song3Element.className = 'song3';
+                    song3Element.textContent = aPlaylist.song3;
+
+                    const song4Element = document.createElement('span');
+                    song4Element.className = 'song4';
+                    song4Element.textContent = aPlaylist.song4;
+
+                    const song5Element = document.createElement('span');
+                    song5Element.className = 'song5';
+                    song5Element.textContent = aPlaylist.song5;
+
+                    const InvitationalElement = document.createElement('span');
+                    InvitationalElement.className = 'Invitational';
+                    InvitationalElement.textContent = aPlaylist.Invitational;
+      
+                    // Append each element to the contentDiv
+                    //contentDiv.appendChild(idElement);
+                    contentDiv.appendChild(idElement);
+                    contentDiv.appendChild(VerseElement);
+                    contentDiv.appendChild(song1Element);
+                    contentDiv.appendChild(song2Element);
+                    contentDiv.appendChild(song3Element);
+                    contentDiv.appendChild(song4Element);
+                    contentDiv.appendChild(song5Element);
+                    contentDiv.appendChild(InvitationalElement);
+                    
+                    li.appendChild(contentDiv);
+                    playlistList.appendChild(li);
+                });
+
+                //Sort playlist buttons by date
+                sortByDate();
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+      
+        // Add event listener to dynamically generated buttons
+        document.addEventListener("click", function(event) {
+          if (event.target && event.target.tagName === "BUTTON") {
+              const clickedButton = event.target;
+              const contentDiv = clickedButton.nextElementSibling;
+      
+              // Check if the clicked button is already active
+              const isActive = clickedButton.classList.contains("active");
+      
+              // Get the currently active button
+              const activeButton = document.querySelector(".active");
+      
+              // If the clicked button is not active, toggle it and disable the active button
+              if (!isActive && (event.target.id !== "updatePlaylistButton" && event.target.id !== "deletePlaylistButton" && event.target.id !== "exportButton")) {
+                  // Toggle the clicked button
+                  clickedButton.classList.add("active");
+      
+                  // Disable the active button
+                  if (activeButton) {
+                      activeButton.classList.remove("active");
+                  }
+              } else {
+                  // If the clicked button is already active, remove the active class
+                  clickedButton.classList.remove("active");
+              }
+      
+              // Get playlist name from the clicked button
+              const clickedPlaylistName = clickedButton.textContent;
+              
+              console.log("contentDiv:", contentDiv);
+              const verseELEMENTAL = contentDiv.querySelector(".Verse");
+              console.log("verse is: ", verseELEMENTAL);
+
+              // Extract the different data from the content div
+              const Verse = contentDiv.querySelector(".Verse").textContent.trim();
+              const song1 = contentDiv.querySelector(".song1").textContent.trim();
+              const song2 = contentDiv.querySelector(".song2").textContent.trim();
+              const song3 = contentDiv.querySelector(".song3").textContent.trim();
+              const song4 = contentDiv.querySelector(".song4").textContent.trim();
+              const song5 = contentDiv.querySelector(".song5").textContent.trim();
+              const Invitational = contentDiv.querySelector(".Invitational").textContent.trim();
+              const dbID = contentDiv.querySelector(".id").textContent.trim();
+      
+              
+      
+              // Enable or disable update and delete buttons based on the active state
+              const updateButton = document.getElementById("updatePlaylistButton");
+              const deleteButton = document.getElementById("deletePlaylistButton");
+              const exportButton = document.getElementById("exportButton");
+      
+              if (isActive) {
+                  updateButton.disabled = true;
+                  deleteButton.disabled = true;
+                  exportButton.disabled = true;
+                  document.getElementById("name").value = '';
+                  document.getElementById("Verse").value = '';
+                  document.getElementById("song1").value = '';
+                  document.getElementById("song2").value = '';
+                  document.getElementById("song3").value = '';
+                  document.getElementById("song4").value = '';
+                  document.getElementById("song5").value = '';
+                  document.getElementById("Invitational").value = '';
+                  document.getElementById("dbID").value = ''; //Can maybe get rid of later
+              } else {
+                  updateButton.disabled = false;
+                  deleteButton.disabled = false;
+                  exportButton.disabled = false;
+                 
+                  // Set values in the form
+                  document.getElementById("name").value = clickedPlaylistName;
+                  document.getElementById("Verse").value = Verse;
+                  document.getElementById("song1").value = song1;
+                  document.getElementById("song2").value = song2;
+                  document.getElementById("song3").value = song3;
+                  document.getElementById("song4").value = song4;
+                  document.getElementById("song5").value = song5;
+                  document.getElementById("Invitational").value = Invitational;
+                  document.getElementById("dbID").value = dbID; //Can maybe get rid of later
+              }
+          }
+      });
+         // Function to filter songs based on search input
+        function filterSongs() 
+        {
+            const searchValue = document.getElementById('search-item').value.toLowerCase();
+            const playlistButtons = document.querySelectorAll('#playlist-list button');
+            playlistButtons.forEach(button => {
+                const buttonText = button.textContent.toLowerCase();
+                const li = button.parentElement;
+                if (buttonText.includes(searchValue)) {
+                    li.style.display = 'block';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }   
+
+        document.getElementById('searchButton').addEventListener('click', filterSongs);
+        document.getElementById('search-item').addEventListener('input', filterSongs);
+
+
+        /************************Date Filtering**************************/
+        function sortByDate() 
+        {
+            const playlistList = document.getElementById('playlist-list');
+            const playlist = Array.from(playlistList.querySelectorAll('li'));
+            // Log the playlist array before sorting
+            console.log('Playlist array before sorting:', playlist);
+            playlist.sort((a, b) => 
+            {
+                const dateA = parseDate(getDateFromElement(a));
+                const dateB = parseDate(getDateFromElement(b));
+                console.log('Date A:', dateA);
+                console.log('Date B:', dateB);
+                return dateB - dateA; //B - A for descending order (newest first)
+            });
+            // Log the sorted playlist array
+            console.log('Playlist array after sorting:', playlist);
+            playlistList.innerHTML = '';
+            playlist.forEach(playlist => playlistList.appendChild(playlist));
+        }
+
+        function getDateFromElement(element) 
+        {
+            const buttonText = element.querySelector('button').innerText.trim(); // Get the inner text of the button
+            const dateRegex = /\d{2}\/\d{2}\/\d{4}/; // Regular expression to match date format MM/DD/YYYY
+            const dateMatch = buttonText.match(dateRegex); // Find the date string in the button text
+            const date = dateMatch ? dateMatch[0] : null; // Extract the first matched date string
+            console.log('Extracted date string:', date); // Log the extracted date string
+            return date; // Extract only the date part
+        }
+
+        function parseDate(dateString) 
+        {
+            const [month, day, year] = dateString.split('/').map(part => parseInt(part, 10));
+            return new Date(year, month - 1, day); // Subtract 1 from month to handle 1-based indexing
+        }
+
+        /****END of date***********************/
+
+        /**************export****************/
+        document.getElementById("exportButton").addEventListener("click", async function() 
+        {
+            const playlistName = document.getElementById("name").value.trim();
+            const verse = document.getElementById("Verse").value.trim();
+            const song1 = document.getElementById("song1").value.trim();
+            const song2 = document.getElementById("song2").value.trim();
+            const song3 = document.getElementById("song3").value.trim();
+            const song4 = document.getElementById("song4").value.trim();
+            const song5 = document.getElementById("song5").value.trim();
+            const invitational = document.getElementById("Invitational").value.trim();
+
+            // Send a POST request to the backend route
+            const response = await fetch('/generate-document', 
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+            },
+                body: JSON.stringify(
+                {
+                    playlistName,
+                    verse,
+                    song1,
+                    song2,
+                    song3,
+                    song4,
+                    song5,
+                    invitational
+                })
+            });
+
+            // Handle the response, e.g., download the generated document
+            if (response.ok) {
+                const blob = await response.blob();
+                const filename = `${playlistName} Music Set.docx`;
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else {
+                console.error('Error generating document:', response.statusText);
+                // Handle errors here, e.g., show an error message to the user
+            }
+        });
+    /**************export END**********************/
+        // Call the fetch playlists function when the page loads
+        window.onload = fetchPlaylists;
+      </script>
+
+      <script>
+      // Add an event listener to the update button
+      document.getElementById("updatePlaylistButton").addEventListener("click", function(event) {
+          
+          // Prevent the default form submission behavior
+          event.preventDefault();
+      
+        // Get the updated playlist data
+          const updatedPlaylistData = {
+              name: document.getElementById("name").value,
+              Verse: document.getElementById("Verse").value,
+              song1: document.getElementById("song1").value,
+              song2: document.getElementById("song2").value,
+              song3: document.getElementById("song3").value,
+              song4: document.getElementById("song4").value,
+              song5: document.getElementById("song5").value,
+              Invitational: document.getElementById("Invitational").value,
+          };
+      
+          // Get the playlist ID
+          const playlistId = document.getElementById("dbID").value;
+      
+          // Define the URL for the update endpoint
+          const url = `/update-playlist/${playlistId}`;
+      
+          // Make a PUT request to update the playlist
+          fetch(url, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updatedPlaylistData),
+          })
+          .then(response => {
+              if (response.ok) {
+                  console.log('Playlist updated successfully');
+                  fetchPlaylists(); 
+      
+              } else {
+                  console.error('Failed to update playlist');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
+      });
+      </script>
+      
+      <script>
+        document.getElementById("deletePlaylistButton").addEventListener("click", function(event) 
+        {  
+          // Prevent the default form submission behavior
+          event.preventDefault();
+          
+          const confirmation = confirm("Are you sure you want to delete the selected playlist?");
+          if(confirmation)
+          {
+          // Get the playlist ID
+          const playlistId = document.getElementById("dbID").value;
+      
+          // Define the URL for the delete endpoint
+          const url = `/delete-playlist/${playlistId}`;
+      
+          // Make a DELETE request to delete the playlist
+          fetch(url, {
+              method: 'DELETE',
+          })
+          .then(response => {
+              if (response.ok) {
+                  console.log('Playlist deleted successfully');
+                  alert('Playlist deleted successfully');
+                  fetchPlaylists(); // Fetch playlists again to update the playlists list
+              } else {
+                  console.error('Failed to delete playlist');
+              }
+          })
+          .catch(error => 
+          {
+              console.error('Error:', error);
+          });
+        }
+      });    
+      </script>
+      
+      <script>
+        document.getElementById("updatePlaylistButton").addEventListener("click", function() {
+        // Change the form action to the update endpoint
+        document.getElementById("addDocumentForm").action = "/update-playlist";
+        document.getElementById("addDocumentForm").method = "PUT"; // Use PUT for updating
+      
+        // Submit the form
+        document.getElementById("addDocumentForm").submit();
+        });
+      
+        document.getElementById("deletePlaylistButton").addEventListener("click", function() {
+        // Change the form action to the delete endpoint
+        document.getElementById("addDocumentForm").action = "/delete-playlist";
+        document.getElementById("addDocumentForm").method = "DELETE"; // Use DELETE for deleting
+        });
+      
+      </script>
+      </body>
+</html>
